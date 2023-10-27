@@ -40,8 +40,6 @@ class MyCamera : BTXs::Camera
 	//
 	//matrix4 m_m4Projection = matrix4(1.0f); //Projection Matrix
 	//matrix4 m_m4View = matrix4(1.0f); //View matrix
-
-	quaternion rotation;
 public:
 	/*
 	USAGE: Constructor

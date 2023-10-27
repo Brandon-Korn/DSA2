@@ -22,23 +22,21 @@ void MyCamera::MoveForward(float a_fSpeed)
 	//		 backwards and we never get closer to the plane as we should 
 	//		 because as we are looking directly at it.
 
-
+	// Move in the forward vector by the given speed
 	m_v3Position += m_v3Forward * a_fSpeed;
 	m_v3Target += m_v3Forward * a_fSpeed;
-	//m_v3Target += vector3(0.0f, 0.0f, a_fDistance);
 }
 void MyCamera::MoveVertical(float a_fSpeed)
 {
+	// Move in the upward vector by the given speed
 	m_v3Position += m_v3Upward * a_fSpeed;
 	m_v3Target += m_v3Upward * a_fSpeed;
-	//m_v3Target += vector3(0.0f, a_fSpeed, 0.0f);
-	//Tip:: Look at MoveForward
 }
 void MyCamera::MoveSideways(float a_fSpeed)
 {
+	// Move in the rightward vector by the given speed
 	m_v3Position += m_v3Rightward * a_fSpeed;
 	m_v3Target += m_v3Rightward * a_fSpeed;
-	//Tip:: Look at MoveForward
 }
 void MyCamera::CalculateView(void)
 {
@@ -48,29 +46,20 @@ void MyCamera::CalculateView(void)
 	//		 it will receive information from the main code on how much these orientations
 	//		 have change so you only need to focus on the directional and positional 
 	//		 vectors. There is no need to calculate any right click process or connections.
-	quaternion rotation = quaternion(m_v3PitchYawRoll);
 
-	//vector3 differenceVector = m_v3Target - m_v3Position;
-	//differenceVector = glm::rotate(rotation, differenceVector);
-	//m_v3Target += differenceVector;
+	// Create the quaternion from the PitchYawRoll vector gotten by the mouse imput
+	quaternion forwardRotation = glm::angleAxis(m_v3PitchYawRoll.x, m_v3Rightward);
+	quaternion upwardRotation = glm::angleAxis(m_v3PitchYawRoll.y, m_v3Upward);
+	quaternion totalRotation = forwardRotation * upwardRotation;
 
-	//if (m_v3PitchYawRoll != vector3(0.0f)) {
-		//m_v3Target = glm::rotate(m_v3Target, glm::radians(rotation.x), vector3(1.0f, 0.0f, 0.0f));
-	
-	//if (m_v3PitchYawRoll != vector3(0.0f)) {
-		//m_v3Target = glm::rotate(m_v3Target, glm::radians(rotation.y), vector3(0.0f, 1.0f, 0.0f));
-	//m_v3Forward = m_v3Target - m_v3Position;
-	m_v3Forward = glm::normalize(glm::rotate(rotation, m_v3Forward));
+	// Rotate the forward vector by the rotation vector, then set that view target
+	m_v3Forward = glm::normalize(glm::rotate(totalRotation, m_v3Forward));
 	m_v3Target = m_v3Position + m_v3Forward;
-
-	m_v3Rightward = glm::normalize(glm::cross(m_v3Forward, m_v3Above));
-	m_v3Upward = glm::normalize(glm::cross(m_v3Rightward, m_v3Forward));
-	
-	//m_v3Target = glm::rotate(rotation, m_v3Target);
-	//else {m_v3Target = vector3(0.0f, 0.0f, 0.0f);}
-
+	// Rotate the rightward vector by the same amount
+	m_v3Rightward = glm::normalize(glm::rotate(totalRotation, m_v3Rightward));
+	// Reset the Rotation vector
 	m_v3PitchYawRoll = vector3(0.0f);
-
+	// Create the View Matrix
 	m_m4View = glm::lookAt(m_v3Position, m_v3Target, m_v3Upward);
 	
 }
